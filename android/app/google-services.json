@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "599003502207",
+    "project_id": "moashraf-b78ed",
+    "storage_bucket": "moashraf-b78ed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599003502207:android:2b1ed677234005f582914a",
+        "android_client_info": {
+          "package_name": "com.example.mo_ashraf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtMA5xFZvpWZj4XBf98S1Db1myercmaXA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
