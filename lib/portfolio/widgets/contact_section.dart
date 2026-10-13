@@ -125,7 +125,7 @@ class ContactSection extends StatelessWidget {
   }
 
   Widget _buildSocialLinks() {
-    final socialData = <String, FaIconData>{
+    final socialData = <String, IconData>{
       'instagram': FontAwesomeIcons.instagram,
       'behance': FontAwesomeIcons.behance,
       'linkedin': FontAwesomeIcons.linkedinIn,
@@ -213,7 +213,7 @@ class ContactSection extends StatelessWidget {
 }
 
 class _SocialIcon extends StatefulWidget {
-  final FaIconData icon;
+  final IconData icon;
   final String url;
 
   const _SocialIcon({required this.icon, required this.url});

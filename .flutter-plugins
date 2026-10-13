@@ -1,0 +1,22 @@
+# This is a generated file; do not edit or check into version control.
+cloud_firestore=/Users/saifmo/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+cloud_firestore_web=/Users/saifmo/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+file_picker=/Users/saifmo/.pub-cache/hosted/pub.dev/file_picker-8.3.2/
+firebase_auth=/Users/saifmo/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+firebase_auth_web=/Users/saifmo/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+firebase_core=/Users/saifmo/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+firebase_core_web=/Users/saifmo/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+flutter_plugin_android_lifecycle=/Users/saifmo/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.22/
+path_provider=/Users/saifmo/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+path_provider_android=/Users/saifmo/.pub-cache/hosted/pub.dev/path_provider_android-2.2.10/
+path_provider_foundation=/Users/saifmo/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1/
+path_provider_linux=/Users/saifmo/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+path_provider_windows=/Users/saifmo/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+sqflite=/Users/saifmo/.pub-cache/hosted/pub.dev/sqflite-2.3.3+1/
+url_launcher=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher-6.3.1/
+url_launcher_android=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.9/
+url_launcher_ios=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.3/
+url_launcher_linux=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.1/
+url_launcher_macos=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.2/
+url_launcher_web=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher_web-2.3.3/
+url_launcher_windows=/Users/saifmo/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.4/

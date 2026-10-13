@@ -3,6 +3,7 @@ import 'package:mo_ashraf/config/app_theme.dart';
 import 'package:mo_ashraf/models/project_model.dart';
 import 'package:mo_ashraf/portfolio/widgets/portfolio_image.dart';
 import 'package:mo_ashraf/portfolio/widgets/scroll_animator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProjectsSection extends StatefulWidget {
   final List<ProjectModel> projects;
@@ -15,7 +16,6 @@ class ProjectsSection extends StatefulWidget {
 
 class _ProjectsSectionState extends State<ProjectsSection> {
   String _selectedCategory = 'All';
-  ProjectModel? _selectedProject;
 
   List<String> get _categories {
     final cats = widget.projects.map((p) => p.category).toSet().toList();
@@ -34,18 +34,20 @@ class _ProjectsSectionState extends State<ProjectsSection> {
     final isWide = MediaQuery.of(context).size.width > 900;
 
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: isWide ? 80 : 24,
-        vertical: 100,
+        horizontal: isWide ? 72 : 24,
+        vertical: 90,
       ),
+      color: AppColors.bgPrimary,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ScrollAnimator(child: _buildHeader()),
-          const SizedBox(height: 40),
+          const SizedBox(height: 30),
           ScrollAnimator(child: _buildFilterTabs()),
-          const SizedBox(height: 48),
+          const SizedBox(height: 38),
           _buildGrid(isWide),
-          if (_selectedProject != null) _buildProjectModal(context),
         ],
       ),
     );
@@ -53,12 +55,11 @@ class _ProjectsSectionState extends State<ProjectsSection> {
 
   Widget _buildHeader() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('PORTFOLIO', style: AppTextStyles.label),
+        Text('SELECTED WORK', style: AppTextStyles.label),
         const SizedBox(height: 16),
-        Text('MY WORK', style: AppTextStyles.sectionTitle),
-        const SizedBox(height: 8),
-        Container(width: 60, height: 3, color: AppColors.crimson),
+        Text('Projects', style: AppTextStyles.sectionTitle),
       ],
     );
   }
@@ -67,18 +68,17 @@ class _ProjectsSectionState extends State<ProjectsSection> {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      alignment: WrapAlignment.center,
       children: _categories.map((cat) {
         final isActive = _selectedCategory == cat;
         return InkWell(
           onTap: () => setState(() => _selectedCategory = cat),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(999),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+            duration: const Duration(milliseconds: 250),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: isActive ? AppColors.crimson : AppColors.surface,
-              borderRadius: BorderRadius.circular(24),
+              color: isActive ? AppColors.crimson : Colors.transparent,
+              borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: isActive ? AppColors.crimson : AppColors.divider,
               ),
@@ -86,10 +86,10 @@ class _ProjectsSectionState extends State<ProjectsSection> {
             child: Text(
               cat.toUpperCase(),
               style: AppTextStyles.label.copyWith(
-                color: isActive
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
-                fontSize: 11,
+                color:
+                    isActive ? AppColors.textPrimary : AppColors.textSecondary,
+                fontSize: 10,
+                letterSpacing: 1.6,
               ),
             ),
           ),
@@ -99,12 +99,11 @@ class _ProjectsSectionState extends State<ProjectsSection> {
   }
 
   Widget _buildGrid(bool isWide) {
-    final crossAxisCount = isWide
-        ? 3
-        : (MediaQuery.of(context).size.width > 600 ? 2 : 1);
+    final crossAxisCount =
+        isWide ? 3 : (MediaQuery.of(context).size.width > 600 ? 2 : 1);
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 350),
       child: GridView.builder(
         key: ValueKey(_selectedCategory),
         shrinkWrap: true,
@@ -113,7 +112,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
-          childAspectRatio: 0.85,
+          childAspectRatio: isWide ? 0.94 : 0.8,
         ),
         itemCount: _filteredProjects.length,
         itemBuilder: (context, index) {
@@ -130,7 +129,14 @@ class _ProjectsSectionState extends State<ProjectsSection> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => _showProjectDetail(project),
+        onTap: () async {
+          final url = Uri.tryParse(project.projectUrl.trim());
+          if (url != null && (url.isScheme('http') || url.isScheme('https'))) {
+            await launchUrl(url, webOnlyWindowName: '_blank');
+          } else {
+            _showProjectDetail(project);
+          }
+        },
         child: _HoverCard(project: project),
       ),
     );
@@ -144,11 +150,11 @@ class _ProjectsSectionState extends State<ProjectsSection> {
         return Dialog(
           backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(24),
           ),
           child: Container(
             constraints: BoxConstraints(
-              maxWidth: isWide ? 900 : double.infinity,
+              maxWidth: isWide ? 920 : double.infinity,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -160,12 +166,12 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                       if (project.imageUrls.isNotEmpty)
                         ClipRRect(
                           borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(16),
+                            top: Radius.circular(24),
                           ),
                           child: PortfolioImage(
                             path: project.imageUrls.first,
                             width: double.infinity,
-                            height: 400,
+                            height: 420,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -191,35 +197,32 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(28),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           project.title,
-                          style: AppTextStyles.sectionTitle.copyWith(
-                            fontSize: 32,
-                          ),
+                          style:
+                              AppTextStyles.sectionTitle.copyWith(fontSize: 32),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 4,
+                                vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.crimson.withValues(
-                                  alpha: 0.15,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
+                                color:
+                                    AppColors.crimson.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
                                 project.category,
-                                style: AppTextStyles.label.copyWith(
-                                  fontSize: 10,
-                                ),
+                                style:
+                                    AppTextStyles.label.copyWith(fontSize: 10),
                               ),
                             ),
                             if (project.client.isNotEmpty) ...[
@@ -228,23 +231,14 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                                 project.client,
                                 style: AppTextStyles.body.copyWith(
                                   color: AppColors.textSecondary,
+                                  fontSize: 15,
                                 ),
                               ),
                             ],
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
                         Text(project.description, style: AppTextStyles.body),
-                        if (project.beforeImageUrl.isNotEmpty &&
-                            project.afterImageUrl.isNotEmpty) ...[
-                          const SizedBox(height: 32),
-                          Text('BEFORE & AFTER', style: AppTextStyles.label),
-                          const SizedBox(height: 16),
-                          _BeforeAfterSlider(
-                            beforeUrl: project.beforeImageUrl,
-                            afterUrl: project.afterImageUrl,
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -255,10 +249,6 @@ class _ProjectsSectionState extends State<ProjectsSection> {
         );
       },
     );
-  }
-
-  Widget _buildProjectModal(BuildContext context) {
-    return const SizedBox.shrink();
   }
 }
 
@@ -282,30 +272,17 @@ class _HoverCardState extends State<_HoverCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _isHovered
-                ? AppColors.crimson.withValues(alpha: 0.5)
-                : AppColors.divider,
-          ),
-          boxShadow: _isHovered
-              ? [
-                  BoxShadow(
-                    color: AppColors.crimson.withValues(alpha: 0.15),
-                    blurRadius: 30,
-                  ),
-                ]
-              : [],
+          borderRadius: BorderRadius.circular(24),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
           child: Stack(
             fit: StackFit.expand,
             children: [
               if (widget.project.imageUrls.isNotEmpty)
                 AnimatedScale(
-                  scale: _isHovered ? 1.05 : 1.0,
-                  duration: const Duration(milliseconds: 400),
+                  scale: _isHovered ? 1.04 : 1,
+                  duration: const Duration(milliseconds: 450),
                   child: PortfolioImage(
                     path: widget.project.imageUrls.first,
                     fit: BoxFit.cover,
@@ -317,7 +294,7 @@ class _HoverCardState extends State<_HoverCard> {
                   color: AppColors.surface,
                   child: const Icon(
                     Icons.image_outlined,
-                    color: AppColors.divider,
+                    color: AppColors.textSecondary,
                     size: 48,
                   ),
                 ),
@@ -328,12 +305,31 @@ class _HoverCardState extends State<_HoverCard> {
                     colors: [
                       Colors.transparent,
                       _isHovered
-                          ? AppColors.bgPrimary.withValues(alpha: 0.9)
-                          : AppColors.bgPrimary.withValues(alpha: 0.6),
+                          ? AppColors.bgPrimary.withValues(alpha: 0.92)
+                          : AppColors.bgPrimary.withValues(alpha: 0.72),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    stops: const [0.3, 1.0],
+                    stops: const [0.35, 1.0],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 18,
+                left: 18,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.champagne.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    widget.project.category.toUpperCase(),
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.champagne,
+                      fontSize: 9,
+                    ),
                   ),
                 ),
               ),
@@ -344,178 +340,28 @@ class _HoverCardState extends State<_HoverCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.bgPrimary.withValues(alpha: 0.62),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColors.champagne.withValues(alpha: 0.35),
-                        ),
-                      ),
-                      child: Text(
-                        widget.project.category.toUpperCase(),
-                        style: AppTextStyles.label.copyWith(fontSize: 9),
-                      ),
+                    Text(
+                      widget.project.title,
+                      style: AppTextStyles.cardTitle.copyWith(fontSize: 24),
                     ),
                     const SizedBox(height: 8),
-                    Text(widget.project.title, style: AppTextStyles.cardTitle),
-                    if (widget.project.client.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.project.client,
-                        style: AppTextStyles.body.copyWith(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                        ),
+                    Text(
+                      widget.project.description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        height: 1.5,
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
-              if (_isHovered)
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.champagne,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_outward,
-                      color: AppColors.bgPrimary,
-                      size: 16,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-class _BeforeAfterSlider extends StatefulWidget {
-  final String beforeUrl;
-  final String afterUrl;
-
-  const _BeforeAfterSlider({required this.beforeUrl, required this.afterUrl});
-
-  @override
-  State<_BeforeAfterSlider> createState() => _BeforeAfterSliderState();
-}
-
-class _BeforeAfterSliderState extends State<_BeforeAfterSlider> {
-  double _sliderValue = 0.5;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SizedBox(
-          height: 300,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: PortfolioImage(
-                    path: widget.afterUrl,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: ClipRect(
-                  clipper: _SliderClipper(_sliderValue),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: PortfolioImage(
-                      path: widget.beforeUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: constraints.maxWidth * _sliderValue - 1,
-                top: 0,
-                bottom: 0,
-                child: Container(width: 2, color: AppColors.crimson),
-              ),
-              Positioned.fill(
-                child: GestureDetector(
-                  onHorizontalDragUpdate: (details) {
-                    setState(() {
-                      _sliderValue =
-                          (details.localPosition.dx / constraints.maxWidth)
-                              .clamp(0.0, 1.0);
-                    });
-                  },
-                ),
-              ),
-              Positioned(
-                left: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgPrimary.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'BEFORE',
-                    style: AppTextStyles.label.copyWith(fontSize: 9),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgPrimary.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'AFTER',
-                    style: AppTextStyles.label.copyWith(fontSize: 9),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _SliderClipper extends CustomClipper<Rect> {
-  final double value;
-
-  _SliderClipper(this.value);
-
-  @override
-  Rect getClip(Size size) {
-    return Rect.fromLTWH(0, 0, size.width * value, size.height);
-  }
-
-  @override
-  bool shouldReclip(covariant _SliderClipper oldClipper) {
-    return oldClipper.value != value;
   }
 }

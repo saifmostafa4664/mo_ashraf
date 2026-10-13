@@ -1,9 +1,8 @@
-import 'dart:html' as html;
-import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:mo_ashraf/config/app_theme.dart';
 import 'package:mo_ashraf/models/reel_model.dart';
 import 'package:mo_ashraf/portfolio/widgets/scroll_animator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReelsSection extends StatelessWidget {
   final List<ReelModel> reels;
@@ -82,101 +81,141 @@ class _ReelCard extends StatefulWidget {
 
 class _ReelCardState extends State<_ReelCard> {
   bool _isHovered = false;
-  late String _viewId;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewId = 'reel-iframe-${widget.index}-${widget.reel.id}';
-    _registerIframe();
-  }
-
-  void _registerIframe() {
-    final embedUrl = widget.reel.embedUrl;
-    ui_web.platformViewRegistry.registerViewFactory(
-      _viewId,
-      (int viewId) {
-        final iframe = html.IFrameElement()
-          ..src = embedUrl
-          ..style.border = 'none'
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..style.borderRadius = '12px'
-          ..allowFullscreen = true
-          ..setAttribute('loading', 'lazy');
-        return iframe;
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
+    final previewUrl = widget.reel.thumbnailUrl.isNotEmpty
+        ? widget.reel.thumbnailUrl
+        : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80';
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _isHovered ? AppColors.crimson.withValues(alpha: 0.5) : AppColors.divider,
+      child: GestureDetector(
+        onTap: () async {
+          final url = Uri.tryParse(widget.reel.reelUrl);
+          if (url != null && await canLaunchUrl(url)) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _isHovered
+                  ? AppColors.crimson.withValues(alpha: 0.5)
+                  : AppColors.divider,
+            ),
+            boxShadow: _isHovered
+                ? [
+                    BoxShadow(
+                        color: AppColors.crimson.withValues(alpha: 0.12),
+                        blurRadius: 24)
+                  ]
+                : [],
           ),
-          boxShadow: _isHovered
-              ? [BoxShadow(color: AppColors.crimson.withValues(alpha: 0.12), blurRadius: 24)]
-              : [],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: HtmlElementView(viewType: _viewId),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _buildPlatformIcon(),
-                        const SizedBox(width: 8),
-                        if (widget.reel.category.isNotEmpty)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: AppColors.crimson.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              widget.reel.category.toUpperCase(),
-                              style: AppTextStyles.label.copyWith(fontSize: 9),
-                            ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1.1,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.network(
+                        previewUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: AppColors.bgSecondary,
+                          child: const Icon(
+                            Icons.play_circle_outline,
+                            color: AppColors.crimson,
+                            size: 48,
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      widget.reel.title,
-                      style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (widget.reel.description.isNotEmpty) ...[
-                      const SizedBox(height: 6),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.bgPrimary.withValues(alpha: 0.05),
+                              AppColors.bgPrimary.withValues(alpha: 0.7),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 12,
+                        bottom: 12,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: AppColors.crimson,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.play_arrow,
+                            color: AppColors.textPrimary,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _buildPlatformIcon(),
+                          const SizedBox(width: 8),
+                          if (widget.reel.category.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.crimson.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                widget.reel.category.toUpperCase(),
+                                style:
+                                    AppTextStyles.label.copyWith(fontSize: 9),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       Text(
-                        widget.reel.description,
-                        style: AppTextStyles.body.copyWith(fontSize: 13),
+                        widget.reel.title,
+                        style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (widget.reel.description.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          widget.reel.description,
+                          style: AppTextStyles.body.copyWith(fontSize: 13),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

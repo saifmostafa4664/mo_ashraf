@@ -1,8 +1,27 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "api/upload.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "build/web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/upload",
+      "dest": "/api/upload.js"
+    },
+    {
+      "src": "/",
+      "dest": "/build/web/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/build/web/$1"
     }
   ]
 }

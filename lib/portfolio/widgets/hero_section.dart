@@ -1,8 +1,8 @@
+import 'dart:math' as math;
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:mo_ashraf/config/app_theme.dart';
 import 'package:mo_ashraf/models/profile_model.dart';
-import 'package:mo_ashraf/portfolio/widgets/portfolio_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HeroSection extends StatefulWidget {
@@ -67,14 +67,14 @@ class _HeroSectionState extends State<HeroSection>
   }
 
   Widget _buildBackdrop() {
-    return Positioned.fill(
+    return const Positioned.fill(
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF171219),
+              Color(0xFF171219),
               AppColors.bgPrimary,
-              const Color(0xFF1A1D22),
+              Color(0xFF1A1D22),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -97,21 +97,22 @@ class _HeroSectionState extends State<HeroSection>
 
   Widget _buildWideHero() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          flex: 11,
+          flex: 9,
           child: FadeInLeft(
             duration: const Duration(milliseconds: 850),
             child: _buildCopy(isWide: true),
           ),
         ),
-        const SizedBox(width: 56),
+        const SizedBox(width: 40),
         Expanded(
-          flex: 9,
+          flex: 7,
           child: FadeInRight(
             duration: const Duration(milliseconds: 900),
             delay: const Duration(milliseconds: 150),
-            child: _buildPortraitStage(isWide: true),
+            child: _buildConstellationStage(),
           ),
         ),
       ],
@@ -124,9 +125,9 @@ class _HeroSectionState extends State<HeroSection>
       children: [
         FadeInDown(
           duration: const Duration(milliseconds: 850),
-          child: _buildPortraitStage(isWide: false),
+          child: _buildConstellationStage(),
         ),
-        const SizedBox(height: 34),
+        const SizedBox(height: 28),
         FadeInUp(
           duration: const Duration(milliseconds: 850),
           child: _buildCopy(isWide: false),
@@ -136,48 +137,44 @@ class _HeroSectionState extends State<HeroSection>
   }
 
   Widget _buildCopy({required bool isWide}) {
-    final name = widget.profile.name.isNotEmpty
-        ? widget.profile.name
-        : 'Mohamed Ashraf Mahmoud';
-    final title = widget.profile.title.isNotEmpty
-        ? widget.profile.title
-        : 'Photo Retoucher';
+    final name =
+        widget.profile.name.isNotEmpty ? widget.profile.name : 'Mohamed Ashraf';
+    final title =
+        widget.profile.title.isNotEmpty ? widget.profile.title : 'Retoucher';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildAvailability(),
-        const SizedBox(height: 26),
+        const SizedBox(height: 24),
         Text(
           title.toUpperCase(),
           style: AppTextStyles.label.copyWith(
-            color: AppColors.teal,
+            color: AppColors.champagne,
             fontSize: isWide ? 13 : 11,
-            letterSpacing: 3,
+            letterSpacing: 2,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         _ShimmerTitle(
           text: name,
-          fontSize: isWide ? 74 : 44,
+          fontSize: isWide ? 88 : 52,
           animation: _motionController,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
+          constraints: const BoxConstraints(maxWidth: 520),
           child: Text(
-            'High-end retouching for product, food, cosmetics, fashion, and commercial visuals with clean detail work and natural finishing.',
+            'High-end retouching for product, food, cosmetics, fashion, and commercial work with a precise, premium finish.',
             style: AppTextStyles.bodyLarge.copyWith(
               color: AppColors.textSecondary.withValues(alpha: 0.92),
-              height: 1.65,
+              height: 1.6,
             ),
           ),
         ),
-        const SizedBox(height: 34),
+        const SizedBox(height: 30),
         _buildActions(isWide),
-        const SizedBox(height: 34),
-        _buildMetaStrip(isWide),
       ],
     );
   }
@@ -186,20 +183,20 @@ class _HeroSectionState extends State<HeroSection>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
         border: Border.all(color: AppColors.divider),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.auto_fix_high, color: AppColors.teal, size: 16),
+          const Icon(Icons.auto_fix_high, color: AppColors.champagne, size: 16),
           const SizedBox(width: 9),
           Text(
             'REMOTE RETOUCHER / TEAM LEAD',
             style: AppTextStyles.label.copyWith(
               color: AppColors.textPrimary,
-              fontSize: 11,
+              fontSize: 10,
             ),
           ),
         ],
@@ -231,141 +228,25 @@ class _HeroSectionState extends State<HeroSection>
     );
   }
 
-  Widget _buildMetaStrip(bool isWide) {
-    final items = [('4+', 'Years'), ('150+', 'Images'), ('Remote', 'Workflow')];
-
-    return Wrap(
-      spacing: isWide ? 26 : 18,
-      runSpacing: 14,
-      children: items.map((item) {
-        return SizedBox(
-          width: isWide ? 118 : 96,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.$1,
-                style: AppTextStyles.cardTitle.copyWith(
-                  fontSize: isWide ? 24 : 20,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                item.$2.toUpperCase(),
-                style: AppTextStyles.label.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildPortraitStage({required bool isWide}) {
-    final imagePath = widget.profile.photoUrl.isNotEmpty
-        ? widget.profile.photoUrl
-        : 'assets/me.jpeg';
-
+  Widget _buildConstellationStage() {
     return AnimatedBuilder(
       animation: _motionController,
       builder: (context, child) {
         final value = Curves.easeInOut.transform(_motionController.value);
         return Transform.translate(
-          offset: Offset(0, isWide ? (value * 14) - 7 : 0),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned(
-                left: isWide ? -28 : -14,
-                top: isWide ? 34 : 24,
-                right: isWide ? 34 : 16,
-                bottom: isWide ? -24 : -14,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColors.teal.withValues(alpha: 0.28),
-                    ),
-                  ),
-                ),
-              ),
-              AspectRatio(
-                aspectRatio: isWide ? 0.74 : 0.9,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      PortfolioImage(path: imagePath, fit: BoxFit.cover),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              AppColors.bgPrimary.withValues(alpha: 0.14),
-                              AppColors.bgPrimary.withValues(alpha: 0.55),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            stops: const [0.35, 0.68, 1],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 18,
-                        right: 18,
-                        bottom: 18,
-                        child: _buildImageCaption(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                right: isWide ? -22 : 12,
-                top: isWide ? 54 : 12,
-                child: _FloatingToolBadge(value: value),
-              ),
-              Positioned(
-                left: isWide ? -34 : 14,
-                bottom: isWide ? 42 : 18,
-                child: _BeforeAfterChip(value: value),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildImageCaption() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.bgPrimary.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.tune, color: AppColors.champagne, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Skin, product, texture, color and final polish',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textPrimary,
-                fontSize: 13,
-                height: 1.35,
+          offset: Offset(0, (value * 16) - 8),
+          child: const SizedBox(
+            height: 520,
+            child: CustomPaint(
+              painter: _ConstellationPainter(
+                glow: AppColors.champagne,
+                primary: AppColors.crimson,
+                secondary: AppColors.teal,
               ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -471,22 +352,22 @@ class _HeroButtonState extends State<_HeroButton> {
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
           decoration: BoxDecoration(
             color: widget.isPrimary
-                ? AppColors.teal
+                ? AppColors.crimson
                 : AppColors.surface.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: widget.isPrimary
-                  ? AppColors.champagne
+                  ? AppColors.crimson
                   : AppColors.divider.withValues(alpha: 0.9),
             ),
             boxShadow: _hovered && widget.isPrimary
-                ? [
+                ? const [
                     BoxShadow(
-                      color: AppColors.teal.withValues(alpha: 0.22),
+                      color: Color(0x3D8B5CF6),
                       blurRadius: 24,
                     ),
                   ]
-                : [],
+                : const [],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -515,86 +396,107 @@ class _HeroButtonState extends State<_HeroButton> {
   }
 }
 
-class _FloatingToolBadge extends StatelessWidget {
-  final double value;
+class _ConstellationPainter extends CustomPainter {
+  final Color glow;
+  final Color primary;
+  final Color secondary;
 
-  const _FloatingToolBadge({required this.value});
+  const _ConstellationPainter({
+    required this.glow,
+    required this.primary,
+    required this.secondary,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(0, (value * -10) + 5),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.surface.withValues(alpha: 0.82),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.divider),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              blurRadius: 30,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.brush_outlined, color: AppColors.teal, size: 17),
-            const SizedBox(width: 9),
-            Text(
-              'DETAIL WORK',
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.textPrimary,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-      ),
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width * 0.52, size.height * 0.52);
+
+    final colors = <Color>[
+      primary,
+      glow,
+      secondary,
+      const Color(0xFFB777FF),
+      const Color(0xFF6CC4FF)
+    ];
+
+    for (var i = 0; i < 70; i++) {
+      final angle = (i / 70) * math.pi * 2 + (i % 3) * 0.6;
+      final radius = 80 + (i % 10) * 14 + (i % 5) * 4;
+      final x = center.dx + math.cos(angle) * radius * 0.75;
+      final y = center.dy + math.sin(angle) * radius * 0.9;
+      final triangleSize = 4.0 + (i % 4);
+      final trianglePaint = Paint()
+        ..color = colors[i % colors.length].withValues(alpha: 0.9)
+        ..style = PaintingStyle.fill;
+      final path = Path();
+      final p1 = Offset(x - triangleSize, y + triangleSize);
+      final p2 = Offset(x + triangleSize, y + triangleSize);
+      final p3 = Offset(x, y - triangleSize * 1.3);
+      path.moveTo(p1.dx, p1.dy);
+      path.lineTo(p2.dx, p2.dy);
+      path.lineTo(p3.dx, p3.dy);
+      path.close();
+      canvas.drawPath(path, trianglePaint);
+    }
+
+    final clusterPaint = Paint()
+      ..color = primary.withValues(alpha: 0.18)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final brainPath = Path();
+    brainPath.moveTo(center.dx - 120, center.dy + 40);
+    brainPath.quadraticBezierTo(
+      center.dx - 180,
+      center.dy - 80,
+      center.dx - 70,
+      center.dy - 130,
     );
+    brainPath.quadraticBezierTo(
+      center.dx + 30,
+      center.dy - 180,
+      center.dx + 150,
+      center.dy - 100,
+    );
+    brainPath.quadraticBezierTo(
+      center.dx + 210,
+      center.dy - 20,
+      center.dx + 110,
+      center.dy + 120,
+    );
+    brainPath.quadraticBezierTo(
+      center.dx + 20,
+      center.dy + 190,
+      center.dx - 80,
+      center.dy + 160,
+    );
+    brainPath.quadraticBezierTo(
+      center.dx - 170,
+      center.dy + 130,
+      center.dx - 120,
+      center.dy + 40,
+    );
+    canvas.drawPath(brainPath, clusterPaint);
+
+    for (var i = 0; i < 24; i++) {
+      final dx = center.dx + (i - 12) * 15;
+      final dy = center.dy + math.sin(i * 0.8) * 52;
+      final dot = Paint()
+        ..color = colors[i % colors.length].withValues(alpha: 0.9);
+      canvas.drawCircle(Offset(dx, dy), 2.2, dot);
+    }
+
+    final aura = Paint()
+      ..color = primary.withValues(alpha: 0.08)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, 140, aura);
   }
-}
-
-class _BeforeAfterChip extends StatelessWidget {
-  final double value;
-
-  const _BeforeAfterChip({required this.value});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 168,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.bgPrimary.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'BEFORE / AFTER',
-            style: AppTextStyles.label.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 9,
-            ),
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: LinearProgressIndicator(
-              value: 0.38 + (value * 0.24),
-              minHeight: 5,
-              backgroundColor: AppColors.surfaceElevated,
-              valueColor: const AlwaysStoppedAnimation(AppColors.teal),
-            ),
-          ),
-        ],
-      ),
-    );
+  bool shouldRepaint(covariant _ConstellationPainter oldDelegate) {
+    return oldDelegate.glow != glow ||
+        oldDelegate.primary != primary ||
+        oldDelegate.secondary != secondary;
   }
 }
 

@@ -24,7 +24,7 @@ class PortfolioImage extends StatelessWidget {
         fit: fit,
         width: width,
         height: height,
-        errorBuilder: (_, _, _) => fallback ?? const SizedBox.shrink(),
+        errorBuilder: (context, error, stackTrace) => fallback ?? const SizedBox.shrink(),
       );
     }
 
@@ -33,7 +33,7 @@ class PortfolioImage extends StatelessWidget {
       fit: fit,
       width: width,
       height: height,
-      errorBuilder: (_, _, _) => fallback ?? const SizedBox.shrink(),
+      errorBuilder: (context, error, stackTrace) => fallback ?? const SizedBox.shrink(),
     );
   }
 }

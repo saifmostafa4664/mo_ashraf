@@ -1,5 +1,5 @@
-import 'dart:typed_data';
-import 'dart:html' as html;
+import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mo_ashraf/config/app_theme.dart';
 import 'package:mo_ashraf/models/project_model.dart';
@@ -23,6 +23,8 @@ class _ProjectsEditorState extends State<ProjectsEditor> {
     final categoryCtrl = TextEditingController(text: existing?.category ?? '');
     final clientCtrl = TextEditingController(text: existing?.client ?? '');
     final dateCtrl = TextEditingController(text: existing?.date ?? '');
+    final projectUrlCtrl =
+        TextEditingController(text: existing?.projectUrl ?? '');
     final orderCtrl = TextEditingController(
       text: existing?.order.toString() ?? '0',
     );
@@ -30,6 +32,8 @@ class _ProjectsEditorState extends State<ProjectsEditor> {
     List<String> imageUrls = List.from(existing?.imageUrls ?? []);
     String beforeUrl = existing?.beforeImageUrl ?? '';
     String afterUrl = existing?.afterImageUrl ?? '';
+    bool isUploading = false;
+    bool isSaving = false;
 
     showDialog(
       context: context,
@@ -68,6 +72,7 @@ class _ProjectsEditorState extends State<ProjectsEditor> {
                       Expanded(child: _field('Order', orderCtrl)),
                     ],
                   ),
+                  _field('Project link (https://...)', projectUrlCtrl),
                   Row(
                     children: [
                       Checkbox(
@@ -86,65 +91,82 @@ class _ProjectsEditorState extends State<ProjectsEditor> {
                     runSpacing: 8,
                     children: [
                       ...imageUrls.asMap().entries.map(
-                        (entry) => Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image: NetworkImage(entry.value),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: InkWell(
-                              onTap: () => setDialogState(
-                                () => imageUrls.removeAt(entry.key),
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: AppColors.crimson,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 12,
-                                  color: AppColors.textPrimary,
+                            (entry) => Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: NetworkImage(entry.value),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: InkWell(
+                                  onTap: () => setDialogState(
+                                    () => imageUrls.removeAt(entry.key),
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.crimson,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 12,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
                       InkWell(
                         onTap: () async {
-                          final input = html.FileUploadInputElement()
-                            ..accept = 'image/*';
-                          input.click();
-                          await input.onChange.first;
-                          if (input.files == null || input.files!.isEmpty) {
-                            return;
+                          if (isUploading || isSaving) return;
+                          setDialogState(() => isUploading = true);
+                          try {
+                            final result = await FilePicker.platform.pickFiles(
+                              type: FileType.image,
+                              withData: true,
+                            );
+                            if (result == null || result.files.isEmpty) return;
+
+                            final file = result.files.first;
+                            final bytes = file.bytes;
+                            if (bytes == null) return;
+
+                            final ext = (file.name.split('.').last.isNotEmpty)
+                                ? file.name.split('.').last.toLowerCase()
+                                : 'jpg';
+
+                            final id = existing?.id ??
+                                DateTime.now()
+                                    .millisecondsSinceEpoch
+                                    .toString();
+                            final url = await _storage.uploadProjectImage(
+                              id,
+                              bytes,
+                              ext,
+                              imageUrls.length,
+                            );
+                            setDialogState(() => imageUrls.add(url));
+                          } catch (error) {
+                            if (ctx.mounted && error is! TimeoutException) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                SnackBar(
+                                  content: Text('Image upload failed: $error'),
+                                  backgroundColor: AppColors.crimson,
+                                ),
+                              );
+                            }
+                          } finally {
+                            if (ctx.mounted) {
+                              setDialogState(() => isUploading = false);
+                            }
                           }
-                          final file = input.files!.first;
-                          final reader = html.FileReader();
-                          reader.readAsArrayBuffer(file);
-                          await reader.onLoad.first;
-                          final bytes = Uint8List.fromList(
-                            (reader.result as List<int>),
-                          );
-                          final ext = file.name.split('.').last;
-                          final id =
-                              existing?.id ??
-                              DateTime.now().millisecondsSinceEpoch.toString();
-                          final url = await _storage.uploadProjectImage(
-                            id,
-                            bytes,
-                            ext,
-                            imageUrls.length,
-                          );
-                          setDialogState(() => imageUrls.add(url));
                         },
                         child: Container(
                           width: 80,
@@ -154,10 +176,11 @@ class _ProjectsEditorState extends State<ProjectsEditor> {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: AppColors.divider),
                           ),
-                          child: const Icon(
-                            Icons.add,
-                            color: AppColors.textSecondary,
-                          ),
+                          child: isUploading
+                              ? const CircularProgressIndicator(
+                                  color: AppColors.crimson)
+                              : const Icon(Icons.add,
+                                  color: AppColors.textSecondary),
                         ),
                       ),
                     ],
@@ -178,26 +201,47 @@ class _ProjectsEditorState extends State<ProjectsEditor> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
+                            if (isUploading || isSaving) return;
+                            setDialogState(() => isSaving = true);
                             final data = {
                               'title': titleCtrl.text,
                               'description': descCtrl.text,
                               'category': categoryCtrl.text,
                               'client': clientCtrl.text,
                               'date': dateCtrl.text,
+                              'projectUrl': projectUrlCtrl.text.trim(),
                               'order': int.tryParse(orderCtrl.text) ?? 0,
                               'isFeatured': isFeatured,
                               'imageUrls': imageUrls,
                               'beforeImageUrl': beforeUrl,
                               'afterImageUrl': afterUrl,
                             };
-                            if (existing != null) {
-                              await _firestore.updateProject(existing.id, data);
-                            } else {
-                              await _firestore.addProject(data);
+                            try {
+                              if (existing != null) {
+                                await _firestore.updateProject(
+                                    existing.id, data);
+                              } else {
+                                await _firestore.addProject(data);
+                              }
+                              if (ctx.mounted) Navigator.pop(ctx);
+                            } catch (error) {
+                              if (ctx.mounted) {
+                                setDialogState(() => isSaving = false);
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Save failed: $error')),
+                                );
+                              }
                             }
-                            if (ctx.mounted) Navigator.pop(ctx);
                           },
-                          child: Text('SAVE', style: AppTextStyles.buttonText),
+                          child: isSaving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text('SAVE', style: AppTextStyles.buttonText),
                         ),
                       ),
                     ],

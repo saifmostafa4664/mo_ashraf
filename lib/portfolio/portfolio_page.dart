@@ -42,28 +42,28 @@ class _PortfolioPageState extends State<PortfolioPage> {
   final GlobalKey _contactKey = GlobalKey();
 
   List<GlobalKey> get _sectionKeys => [
-    _heroKey,
-    _aboutKey,
-    _experienceKey,
-    _projectsKey,
-    _skillsKey,
-    _reelsKey,
-    _studioKey,
-    _publicationsKey,
-    _contactKey,
-  ];
+        _heroKey,
+        _projectsKey,
+        _aboutKey,
+        _experienceKey,
+        _skillsKey,
+        _reelsKey,
+        _studioKey,
+        _publicationsKey,
+        _contactKey,
+      ];
 
   List<String> get _sectionLabels => [
-    'Home',
-    'About',
-    'Experience',
-    'Portfolio',
-    'Skills',
-    'Reels',
-    'Studio',
-    'Publications',
-    'Contact',
-  ];
+        'Home',
+        'Portfolio',
+        'About',
+        'Experience',
+        'Skills',
+        'Reels',
+        'Studio',
+        'Publications',
+        'Contact',
+      ];
 
   @override
   void dispose() {
@@ -79,9 +79,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
         stream: _firestoreService.getProfile(),
         builder: (context, profileSnap) {
           final loadedProfile = profileSnap.data ?? ProfileModel();
-          final profile = loadedProfile.name.isEmpty
-              ? DummyData.profile
-              : loadedProfile;
+          final profile =
+              loadedProfile.name.isEmpty ? DummyData.profile : loadedProfile;
 
           return Stack(
             children: [
@@ -116,6 +115,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
               onViewPortfolio: () => _scrollToSection(_projectsKey),
             ),
           ),
+          StreamBuilder<List<ProjectModel>>(
+            stream: _firestoreService.getProjects(),
+            builder: (context, snap) {
+              final projects =
+                  (snap.data ?? []).isEmpty ? DummyData.projects : snap.data!;
+              return Container(
+                key: _projectsKey,
+                child: ProjectsSection(projects: projects),
+              );
+            },
+          ),
           Container(
             key: _aboutKey,
             child: AboutSection(profile: profile),
@@ -132,24 +142,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
               );
             },
           ),
-          StreamBuilder<List<ProjectModel>>(
-            stream: _firestoreService.getProjects(),
-            builder: (context, snap) {
-              final projects = (snap.data ?? []).isEmpty
-                  ? DummyData.projects
-                  : snap.data!;
-              return Container(
-                key: _projectsKey,
-                child: ProjectsSection(projects: projects),
-              );
-            },
-          ),
           StreamBuilder<List<SkillModel>>(
             stream: _firestoreService.getSkills(),
             builder: (context, snap) {
-              final skills = (snap.data ?? []).isEmpty
-                  ? DummyData.skills
-                  : snap.data!;
+              final skills =
+                  (snap.data ?? []).isEmpty ? DummyData.skills : snap.data!;
               return Container(
                 key: _skillsKey,
                 child: SkillsSection(skills: skills),
@@ -207,9 +204,9 @@ class _PortfolioBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
+    return const IgnorePointer(
       child: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment(-0.8, -0.9),
             radius: 1.2,

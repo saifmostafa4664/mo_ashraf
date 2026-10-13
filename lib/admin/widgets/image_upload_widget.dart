@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'dart:html' as html;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mo_ashraf/config/app_theme.dart';
 
@@ -26,19 +26,20 @@ class _ImageUploadWidgetState extends State<ImageUploadWidget> {
   Uint8List? _previewData;
 
   Future<void> _pickAndUpload() async {
-    final input = html.FileUploadInputElement()..accept = 'image/*';
-    input.click();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
 
-    await input.onChange.first;
-    if (input.files == null || input.files!.isEmpty) return;
+    if (result == null || result.files.isEmpty) return;
 
-    final file = input.files!.first;
-    final reader = html.FileReader();
-    reader.readAsArrayBuffer(file);
-    await reader.onLoad.first;
+    final file = result.files.first;
+    final bytes = file.bytes;
+    if (bytes == null) return;
 
-    final bytes = Uint8List.fromList((reader.result as List<int>));
-    final ext = file.name.split('.').last;
+    final ext = (file.name.split('.').last.isNotEmpty)
+        ? file.name.split('.').last
+        : 'jpg';
 
     setState(() {
       _isUploading = true;

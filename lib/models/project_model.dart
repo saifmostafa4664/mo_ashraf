@@ -8,6 +8,7 @@ class ProjectModel {
   final String afterImageUrl;
   final String client;
   final String date;
+  final String projectUrl;
   final bool isFeatured;
   final int order;
 
@@ -21,6 +22,7 @@ class ProjectModel {
     this.afterImageUrl = '',
     this.client = '',
     this.date = '',
+    this.projectUrl = '',
     this.isFeatured = false,
     this.order = 0,
   });
@@ -36,6 +38,7 @@ class ProjectModel {
       afterImageUrl: map['afterImageUrl'] ?? '',
       client: map['client'] ?? '',
       date: map['date'] ?? '',
+      projectUrl: map['projectUrl'] ?? '',
       isFeatured: map['isFeatured'] ?? false,
       order: map['order'] ?? 0,
     );
@@ -51,6 +54,7 @@ class ProjectModel {
       'afterImageUrl': afterImageUrl,
       'client': client,
       'date': date,
+      'projectUrl': projectUrl,
       'isFeatured': isFeatured,
       'order': order,
     };

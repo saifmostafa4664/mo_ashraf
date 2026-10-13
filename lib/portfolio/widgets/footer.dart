@@ -84,7 +84,7 @@ class Footer extends StatelessWidget {
     final links = profile.socialLinks;
     final items = <Widget>[];
 
-    void addIcon(String key, FaIconData iconData) {
+    void addIcon(String key, IconData iconData) {
       if (links.containsKey(key) && links[key]!.isNotEmpty) {
         items.add(
           Padding(

@@ -30,6 +30,8 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+.npm-cache/
+node_modules/
 /build/
 /coverage/
 
@@ -43,3 +45,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+.vercel
+.env*
